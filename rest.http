@@ -1,0 +1,48 @@
+GET http://localhost:3000/users?username= sysafarila
+
+###
+
+GET http://localhost:3000/users/449fd667-d361-4661-9688-5b7ef3687669
+
+###
+
+POST http://localhost:3000/register
+Content-Type: application/json
+Accept: application/json
+
+{
+  "username": "sysafarila",
+  "full_name": "Syahrul Safarila",
+  "password": "password"
+}
+    
+###
+
+POST http://localhost:3000/login
+Content-Type: application/json
+Accept: application/json
+
+{
+  "username": "sysafarila",
+  "password": "password"
+}
+
+###
+
+POST http://localhost:3000/transactions
+Content-Type: application/json
+Accept: application/json
+x-api-key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3ODg0NDI5NjMsImlhdCI6MTc4ODQ0Mjk1OCwiaXNzIjoic3lzYWZhcmlsYSIsInN1YiI6IlN5YWhydWwgU2FmYXJpbGEiLCJ1c2VyX2lkIjoiMzJhODhiYmEtMzAyYS00YWY5LTkwNzAtZmEyMWU2NDg2NTNjIn0.zcLTtS2JiYz60Ni_2xMPDEjqxfQFRogKuiEXtOcU1zA
+
+{
+  "amount": 20000,
+  "description": "makan daging",
+  "is_income": false
+}
+
+###
+
+GET http://localhost:3000/transactions/ada692e3-d6d4-4799-b0e4-74fa1cbf3297
+Content-Type: application/json
+Accept: application/json
+x-api-key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3ODkwNDc5MjYsImlhdCI6MTc4ODQ0MzEyNiwiaXNzIjoic3lzYWZhcmlsYSIsInN1YiI6IlN5YWhydWwgU2FmYXJpbGEiLCJ1c2VyX2lkIjoiMzJhODhiYmEtMzAyYS00YWY5LTkwNzAtZmEyMWU2NDg2NTNjIn0.wf9tlyt7Vk1HibTssY4kZGWU0n9JgB6y9YUkw3MJeII
