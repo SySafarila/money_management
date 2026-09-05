@@ -3,11 +3,9 @@ package main
 import (
 	"log"
 	"money_management/config"
-	"money_management/controllers"
 	"money_management/database"
 	"money_management/middlewares"
-	"money_management/repositories"
-	"money_management/services"
+	"money_management/modules"
 	"money_management/utils"
 
 	"github.com/gofiber/fiber/v3"
@@ -31,33 +29,30 @@ func main() {
 	}))
 
 	// user
-	userRepo := repositories.NewUserRepository()
-	userService := services.NewUserService(userRepo)
-	userController := controllers.NewUserController(userService)
+	userModule := modules.NewUserModule()
 
 	// auth
-	authService := services.NewAuthService(userService)
-	authController := controllers.NewAuthController(authService)
+	authModule := modules.NewAuthModule(userModule.Service)
 
 	// transaction
-	transactionRepository := repositories.NewTransactionRepository()
-	transactionService := services.NewTransactionService(transactionRepository)
-	transactionController := controllers.NewTransactionController(transactionService)
+	transactionModule := modules.NewTransactionModule()
 
 	// user
-	app.Get("/users", userController.GetAllUsers)
-	app.Get("/users/:id", userController.DetailUser)
+	app.Get("/users", userModule.Controller.GetAllUsers)
+	app.Get("/users/:id", userModule.Controller.DetailUser)
 
 	// auth
-	app.Post("/login", authController.Login)
-	app.Post("/register", authController.Register)
-	app.Post("/logout", middlewares.AuthCheck, authController.Logout)
+	app.Post("/login", authModule.Controller.Login)
+	app.Post("/register", authModule.Controller.Register)
+	app.Post("/logout", middlewares.AuthCheck, authModule.Controller.Logout)
 
 	// transaction
-	app.Get("/transactions", middlewares.AuthCheck, transactionController.All)
-	app.Get("/transactions/:id", middlewares.AuthCheck, transactionController.Detail)
-	app.Delete("/transactions/:id", middlewares.AuthCheck, transactionController.Detail)
-	app.Post("/transactions", middlewares.AuthCheck, transactionController.CreateTransaction)
+	app.Use("/transactions", middlewares.AuthCheck)
+	app.Get("/transactions", transactionModule.Controller.All)
+	app.Post("/transactions", transactionModule.Controller.CreateTransaction)
+	app.Get("/transactions/:id", transactionModule.Controller.Detail)
+	app.Patch("/transactions/:id", transactionModule.Controller.UpdateTransaction)
+	app.Delete("/transactions/:id", transactionModule.Controller.Delete)
 
 	log.Fatal(app.Listen(":3000"))
 }

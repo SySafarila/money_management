@@ -1,20 +1,39 @@
 package services
 
 import (
+	"money_management/dtos"
 	"money_management/models"
 	"money_management/repositories"
+	"time"
 )
 
 type TransactionService interface {
 	GetAll(user models.CurrentUser) (map[string][]models.Transaction, error)
 	GetDetail(user models.CurrentUser, id string) (models.Transaction, error)
-	AddIncome(user models.CurrentUser, amount int64, desc string) (models.Transaction, error)
-	AddExpense(user models.CurrentUser, amount int64, desc string) (models.Transaction, error)
+	NewTransaction(user models.CurrentUser, data dtos.TransactionCreateDto) (models.Transaction, error)
+	UpdateTransaction(user models.CurrentUser, id string, data dtos.TransactionCreateDto) (models.Transaction, error)
 	DeleteTransaction(user models.CurrentUser, id string) error
 }
 
 type transactionService struct {
 	transactionRepository repositories.TransactionRepository
+}
+
+func (t transactionService) UpdateTransaction(user models.CurrentUser, id string, data dtos.TransactionCreateDto) (models.Transaction, error) {
+	transaction, errDetailTransaction := t.GetDetail(user, id)
+	if errDetailTransaction != nil {
+		return models.Transaction{}, errDetailTransaction
+	}
+	date, errDate := time.Parse("2006-01-02T15:04:05Z07:00", data.Date)
+	if errDate != nil {
+		return models.Transaction{}, errDate
+	}
+	transaction.Amount = data.Amount
+	transaction.IsIncome = *data.IsIncome
+	transaction.Description = data.Description
+	transaction.Date = date
+	result, err := t.transactionRepository.Update(user, transaction.Id, transaction)
+	return result, err
 }
 
 func (t transactionService) GetDetail(user models.CurrentUser, id string) (models.Transaction, error) {
@@ -35,35 +54,27 @@ func (t transactionService) GetAll(user models.CurrentUser) (map[string][]models
 }
 
 func (t transactionService) DeleteTransaction(user models.CurrentUser, id string) error {
-	return t.transactionRepository.Delete(user, id)
+	transaction, err := t.GetDetail(user, id)
+	if err != nil {
+		return err
+	}
+	return t.transactionRepository.Delete(user, transaction.Id)
 }
 
-func (t transactionService) AddIncome(user models.CurrentUser, amount int64, desc string) (models.Transaction, error) {
+func (t transactionService) NewTransaction(user models.CurrentUser, data dtos.TransactionCreateDto) (models.Transaction, error) {
+	date, errDate := time.Parse("2006-01-02T15:04:05Z07:00", data.Date)
+	if errDate != nil {
+		return models.Transaction{}, errDate
+	}
 	transaction := models.Transaction{
 		UserId:      user.UserId,
-		Amount:      amount,
-		IsIncome:    true,
-		Description: desc,
+		Amount:      data.Amount,
+		IsIncome:    *data.IsIncome,
+		Description: data.Description,
+		Date:        date,
 	}
 	result, err := t.transactionRepository.Create(transaction)
-	if err != nil {
-		return transaction, err
-	}
-	return result, nil
-}
-
-func (t transactionService) AddExpense(user models.CurrentUser, amount int64, desc string) (models.Transaction, error) {
-	transaction := models.Transaction{
-		UserId:      user.UserId,
-		Amount:      amount,
-		IsIncome:    false,
-		Description: desc,
-	}
-	result, err := t.transactionRepository.Create(transaction)
-	if err != nil {
-		return transaction, err
-	}
-	return result, nil
+	return result, err
 }
 
 func NewTransactionService(repo repositories.TransactionRepository) TransactionService {

@@ -9,7 +9,7 @@ type TransactionRepository interface {
 	Find(user models.CurrentUser, id string) (models.Transaction, error)
 	FindAll(user models.CurrentUser) ([]models.Transaction, error)
 	Create(transaction models.Transaction) (models.Transaction, error)
-	Update(user models.CurrentUser, id string) (models.Transaction, error)
+	Update(user models.CurrentUser, id string, transaction models.Transaction) (models.Transaction, error)
 	Delete(user models.CurrentUser, id string) error
 }
 
@@ -32,9 +32,9 @@ func (t transactionRepository) Create(transaction models.Transaction) (models.Tr
 	return transaction, err
 }
 
-func (t transactionRepository) Update(user models.CurrentUser, id string) (models.Transaction, error) {
-	//TODO implement me
-	panic("implement me")
+func (t transactionRepository) Update(user models.CurrentUser, id string, transaction models.Transaction) (models.Transaction, error) {
+	err := database.DB.Where("id = ?", id).Updates(&transaction).Error
+	return transaction, err
 }
 
 func (t transactionRepository) Delete(user models.CurrentUser, id string) error {
