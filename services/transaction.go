@@ -8,8 +8,8 @@ import (
 )
 
 type TransactionService interface {
-	GetAll(user models.CurrentUser) (map[string][]models.Transaction, error)
-	GetDetail(user models.CurrentUser, id string) (models.Transaction, error)
+	GetAll(user models.CurrentUser, q models.TransactionQueries) (map[string][]models.TransactionCategory, error)
+	GetDetail(user models.CurrentUser, id string) (models.TransactionCategory, error)
 	NewTransaction(user models.CurrentUser, data dtos.TransactionCreateDto) (models.Transaction, error)
 	UpdateTransaction(user models.CurrentUser, id string, data dtos.TransactionCreateDto) (models.Transaction, error)
 	DeleteTransaction(user models.CurrentUser, id string) error
@@ -17,9 +17,16 @@ type TransactionService interface {
 
 type transactionService struct {
 	transactionRepository repositories.TransactionRepository
+	categoryService       CategoryService
 }
 
 func (t transactionService) UpdateTransaction(user models.CurrentUser, id string, data dtos.TransactionCreateDto) (models.Transaction, error) {
+	if data.CategoryId != nil {
+		_, err := t.categoryService.GetDetail(user, *data.CategoryId)
+		if err != nil {
+			return models.Transaction{}, err
+		}
+	}
 	transaction, errDetailTransaction := t.GetDetail(user, id)
 	if errDetailTransaction != nil {
 		return models.Transaction{}, errDetailTransaction
@@ -32,23 +39,58 @@ func (t transactionService) UpdateTransaction(user models.CurrentUser, id string
 	transaction.IsIncome = *data.IsIncome
 	transaction.Description = data.Description
 	transaction.Date = date
-	result, err := t.transactionRepository.Update(user, transaction.Id, transaction)
+	transaction.CategoryId = data.CategoryId
+	result, err := t.transactionRepository.Update(user, transaction.Id, transaction.Transaction)
 	return result, err
 }
 
-func (t transactionService) GetDetail(user models.CurrentUser, id string) (models.Transaction, error) {
-	return t.transactionRepository.Find(user, id)
+func (t transactionService) GetDetail(user models.CurrentUser, id string) (models.TransactionCategory, error) {
+	transaction, err := t.transactionRepository.Find(user, id)
+	if err != nil {
+		return models.TransactionCategory{}, err
+	}
+	if transaction.CategoryId != nil {
+		category, err := t.categoryService.GetDetail(user, *transaction.CategoryId)
+		if err != nil {
+			return models.TransactionCategory{}, err
+		}
+		return models.TransactionCategory{
+			Transaction: transaction,
+			Category:    &category,
+		}, nil
+	}
+	return models.TransactionCategory{
+		Transaction: transaction,
+		Category:    nil,
+	}, nil
 }
 
-func (t transactionService) GetAll(user models.CurrentUser) (map[string][]models.Transaction, error) {
-	transactions, err := t.transactionRepository.FindAll(user)
+func (t transactionService) GetAll(user models.CurrentUser, q models.TransactionQueries) (map[string][]models.TransactionCategory, error) {
+	transactions, err := t.transactionRepository.FindAll(user, q)
 	if err != nil {
 		return nil, err
 	}
-	groupByDate := make(map[string][]models.Transaction)
+	categories, _ := t.categoryService.GetAll(user)
+	categoriesMap := make(map[string]*models.Category)
+	for _, category := range categories {
+		categoriesMap[category.Id] = &category
+	}
+
+	groupByDate := make(map[string][]models.TransactionCategory)
 	for _, transaction := range transactions {
 		date := transaction.UpdatedAt.Format("2006-01-02")
-		groupByDate[date] = append(groupByDate[date], transaction)
+		if transaction.CategoryId != nil {
+			groupByDate[date] = append(groupByDate[date], models.TransactionCategory{
+				Transaction: transaction,
+				Category:    categoriesMap[*transaction.CategoryId],
+			})
+		} else {
+			groupByDate[date] = append(groupByDate[date], models.TransactionCategory{
+				Transaction: transaction,
+				Category:    nil,
+			})
+
+		}
 	}
 	return groupByDate, err
 }
@@ -62,6 +104,12 @@ func (t transactionService) DeleteTransaction(user models.CurrentUser, id string
 }
 
 func (t transactionService) NewTransaction(user models.CurrentUser, data dtos.TransactionCreateDto) (models.Transaction, error) {
+	if data.CategoryId != nil {
+		_, err := t.categoryService.GetDetail(user, *data.CategoryId)
+		if err != nil {
+			return models.Transaction{}, err
+		}
+	}
 	date, errDate := time.Parse("2006-01-02T15:04:05Z07:00", data.Date)
 	if errDate != nil {
 		return models.Transaction{}, errDate
@@ -72,11 +120,12 @@ func (t transactionService) NewTransaction(user models.CurrentUser, data dtos.Tr
 		IsIncome:    *data.IsIncome,
 		Description: data.Description,
 		Date:        date,
+		CategoryId:  data.CategoryId,
 	}
 	result, err := t.transactionRepository.Create(transaction)
 	return result, err
 }
 
-func NewTransactionService(repo repositories.TransactionRepository) TransactionService {
-	return &transactionService{transactionRepository: repo}
+func NewTransactionService(repo repositories.TransactionRepository, categoryService CategoryService) TransactionService {
+	return &transactionService{transactionRepository: repo, categoryService: categoryService}
 }

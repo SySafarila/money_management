@@ -67,11 +67,19 @@ func (t transactionController) Delete(c fiber.Ctx) error {
 
 func (t transactionController) All(c fiber.Ctx) error {
 	user := fiber.Locals[models.CurrentUser](c, "user")
-	res, err := t.transactionService.GetAll(user)
+	queries := models.TransactionQueries{
+		IsIncome:   fiber.Query[string](c, "is_income"),
+		CategoryId: fiber.Query[string](c, "category_id"),
+	}
+	err2 := utils.ValidateStruct(queries)
+	if err2 != nil {
+		return err2
+	}
+	res, err := t.transactionService.GetAll(user, queries)
 	if err != nil {
 		return err
 	}
-	return c.JSON(base.Response[map[string][]models.Transaction]{
+	return c.JSON(base.Response[map[string][]models.TransactionCategory]{
 		Message: "Transactions retrieved",
 		Data:    res,
 	})
@@ -109,7 +117,7 @@ func (t transactionController) Detail(c fiber.Ctx) error {
 		return err
 	}
 
-	return c.JSON(base.Response[models.Transaction]{
+	return c.JSON(base.Response[models.TransactionCategory]{
 		Message: "Transaction retrieved",
 		Data:    result,
 	})

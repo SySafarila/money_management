@@ -34,8 +34,11 @@ func main() {
 	// auth
 	authModule := modules.NewAuthModule(userModule.Service)
 
+	// category
+	categoryModule := modules.NewCategoryModule()
+
 	// transaction
-	transactionModule := modules.NewTransactionModule()
+	transactionModule := modules.NewTransactionModule(categoryModule.Service)
 
 	// user
 	app.Get("/users", userModule.Controller.GetAllUsers)
@@ -53,6 +56,14 @@ func main() {
 	app.Get("/transactions/:id", transactionModule.Controller.Detail)
 	app.Patch("/transactions/:id", transactionModule.Controller.UpdateTransaction)
 	app.Delete("/transactions/:id", transactionModule.Controller.Delete)
+
+	// category
+	app.Use("/categories", middlewares.AuthCheck)
+	app.Get("/categories", categoryModule.Controller.All)
+	app.Post("/categories", categoryModule.Controller.CreateCategory)
+	app.Get("/categories/:id", categoryModule.Controller.Detail)
+	app.Patch("/categories/:id", categoryModule.Controller.UpdateCategory)
+	app.Delete("/categories/:id", categoryModule.Controller.Delete)
 
 	log.Fatal(app.Listen(":3000"))
 }

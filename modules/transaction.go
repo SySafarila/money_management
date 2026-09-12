@@ -12,9 +12,9 @@ type TransactionModule struct {
 	Controller controllers.TransactionController
 }
 
-func NewTransactionModule() TransactionModule {
+func NewTransactionModule(categoryService services.CategoryService) TransactionModule {
 	repository := repositories.NewTransactionRepository()
-	service := services.NewTransactionService(repository)
+	service := services.NewTransactionService(repository, categoryService)
 	controller := controllers.NewTransactionController(service)
 	return TransactionModule{
 		Repository: repository,
