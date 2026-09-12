@@ -29,7 +29,7 @@ func (a authService) generateToken(user models.User) (string, int64, error) {
 		exp int64
 	)
 	exp = time.Now().Add(time.Hour * 24 * 7).Unix()
-	key = []byte("MYSECRETKEY")
+	key = []byte(utils.GetJWTSecretKey())
 	t = jwt.NewWithClaims(jwt.SigningMethodHS256,
 		jwt.MapClaims{
 			"user_id": user.Id,

@@ -5,6 +5,7 @@ import (
 	"money_management/models"
 
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/spf13/viper"
 )
 
 func ValidateAndParseJwt(token string) (models.CurrentUser, error) {
@@ -17,7 +18,7 @@ func ValidateAndParseJwt(token string) (models.CurrentUser, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
-		return []byte("MYSECRETKEY"), nil
+		return []byte(GetJWTSecretKey()), nil
 	}, jwt.WithValidMethods([]string{"HS256"}))
 	if err != nil {
 		return models.CurrentUser{}, ErrInvalidToken
@@ -26,4 +27,8 @@ func ValidateAndParseJwt(token string) (models.CurrentUser, error) {
 		return models.CurrentUser{}, ErrInvalidToken
 	}
 	return *claims, nil
+}
+
+func GetJWTSecretKey() string {
+	return viper.GetString("jwt_secret_key")
 }
