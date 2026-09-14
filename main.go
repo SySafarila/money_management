@@ -25,7 +25,7 @@ func main() {
 	})
 	app.Use(recover.New())
 	app.Use(cors.New(cors.Config{
-		AllowOrigins: []string{"http://localhost:3000"},
+		AllowOrigins: []string{"http://localhost:5173"},
 	}))
 
 	// user
