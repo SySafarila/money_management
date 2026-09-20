@@ -78,7 +78,7 @@ func (t transactionService) GetAll(user models.CurrentUser, q models.Transaction
 
 	groupByDate := make(map[string][]models.TransactionCategory)
 	for _, transaction := range transactions {
-		date := transaction.UpdatedAt.Format("2006-01-02")
+		date := transaction.Date.Format("2006-01-02")
 		if transaction.CategoryId != nil {
 			groupByDate[date] = append(groupByDate[date], models.TransactionCategory{
 				Transaction: transaction,
@@ -89,7 +89,6 @@ func (t transactionService) GetAll(user models.CurrentUser, q models.Transaction
 				Transaction: transaction,
 				Category:    nil,
 			})
-
 		}
 	}
 	return groupByDate, err
