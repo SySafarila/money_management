@@ -6,6 +6,7 @@ type TransactionCreateDto struct {
 	Description string  `json:"description" validate:"required"`
 	Date        string  `json:"date" validate:"required,datetime=2006-01-02T15:04:05Z07:00"`
 	CategoryId  *string `json:"category_id"`
+	IsCC        *bool   `json:"is_cc" validate:"required,boolean"`
 }
 
 func (t TransactionCreateDto) TableName() string {

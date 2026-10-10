@@ -40,6 +40,7 @@ func (t transactionService) UpdateTransaction(user models.CurrentUser, id string
 	transaction.Description = data.Description
 	transaction.Date = date
 	transaction.CategoryId = data.CategoryId
+	transaction.IsCC = *data.IsCC
 	result, err := t.transactionRepository.Update(user, transaction.Id, transaction.Transaction)
 	return result, err
 }
@@ -120,6 +121,7 @@ func (t transactionService) NewTransaction(user models.CurrentUser, data dtos.Tr
 		Description: data.Description,
 		Date:        date,
 		CategoryId:  data.CategoryId,
+		IsCC:        *data.IsCC,
 	}
 	result, err := t.transactionRepository.Create(transaction)
 	return result, err

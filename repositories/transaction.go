@@ -23,7 +23,7 @@ func (t transactionRepository) Find(user models.CurrentUser, id string) (models.
 
 func (t transactionRepository) FindAll(user models.CurrentUser, q models.TransactionQueries) ([]models.Transaction, error) {
 	var transactions []models.Transaction
-	query := database.DB.Where("user_id = ?", user.UserId).Order("updated_at DESC")
+	query := database.DB.Where("user_id = ?", user.UserId).Order("date DESC")
 
 	if q.IsIncome == "true" {
 		query = query.Where("is_income = ?", true)

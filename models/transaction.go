@@ -14,6 +14,7 @@ type Transaction struct {
 	UpdatedAt   time.Time `json:"updated_at"`
 	Date        time.Time `json:"date"`
 	CategoryId  *string   `json:"category_id"`
+	IsCC        bool      `json:"is_cc"`
 }
 
 type TransactionCategory struct {
