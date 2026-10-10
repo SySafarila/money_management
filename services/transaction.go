@@ -53,7 +53,11 @@ func (t transactionService) GetDetail(user models.CurrentUser, id string) (model
 	if transaction.CategoryId != nil {
 		category, err := t.categoryService.GetDetail(user, *transaction.CategoryId)
 		if err != nil {
-			return models.TransactionCategory{}, err
+			transaction.CategoryId = nil
+			return models.TransactionCategory{
+				Transaction: transaction,
+				Category:    nil,
+			}, nil
 		}
 		return models.TransactionCategory{
 			Transaction: transaction,
