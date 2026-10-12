@@ -36,11 +36,11 @@ func (t transactionService) UpdateTransaction(user models.CurrentUser, id string
 		return models.Transaction{}, errDate
 	}
 	transaction.Amount = data.Amount
-	transaction.IsIncome = *data.IsIncome
+	transaction.IsIncome = data.IsIncome
 	transaction.Description = data.Description
 	transaction.Date = date
 	transaction.CategoryId = data.CategoryId
-	transaction.IsCC = *data.IsCC
+	transaction.IsCC = data.IsCC
 	result, err := t.transactionRepository.Update(user, transaction.Id, transaction.Transaction)
 	return result, err
 }
@@ -121,11 +121,11 @@ func (t transactionService) NewTransaction(user models.CurrentUser, data dtos.Tr
 	transaction := models.Transaction{
 		UserId:      user.UserId,
 		Amount:      data.Amount,
-		IsIncome:    *data.IsIncome,
+		IsIncome:    data.IsIncome,
 		Description: data.Description,
 		Date:        date,
 		CategoryId:  data.CategoryId,
-		IsCC:        *data.IsCC,
+		IsCC:        data.IsCC,
 	}
 	result, err := t.transactionRepository.Create(transaction)
 	return result, err

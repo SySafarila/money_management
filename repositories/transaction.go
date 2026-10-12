@@ -35,6 +35,14 @@ func (t transactionRepository) FindAll(user models.CurrentUser, q models.Transac
 		query = query.Where("category_id = ?", q.CategoryId)
 	}
 
+	if q.StartDate != "" {
+		query = query.Where("date >= ?", q.StartDate)
+	}
+
+	if q.EndDate != "" {
+		query = query.Where("date <= ?", q.EndDate)
+	}
+
 	err := query.Find(&transactions).Error
 	return transactions, err
 }

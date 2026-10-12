@@ -8,13 +8,13 @@ type Transaction struct {
 	Id          string    `json:"id" gorm:"type:uuid;default:gen_random_uuid();primaryKey"`
 	UserId      string    `json:"user_id"`
 	Amount      int64     `json:"amount"`
-	IsIncome    bool      `json:"is_income"`
+	IsIncome    *bool     `json:"is_income" gorm:"column:is_income"`
 	Description string    `json:"description"`
 	CreatedAt   time.Time `json:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at"`
 	Date        time.Time `json:"date"`
 	CategoryId  *string   `json:"category_id"`
-	IsCC        bool      `json:"is_cc"`
+	IsCC        *bool     `json:"is_cc" gorm:"column:is_cc"`
 }
 
 type TransactionCategory struct {
@@ -25,4 +25,6 @@ type TransactionCategory struct {
 type TransactionQueries struct {
 	IsIncome   string `json:"is_income" validate:"omitempty,oneof=true false"`
 	CategoryId string `json:"category_id" validate:"omitempty,uuid"`
+	StartDate  string `json:"start_date" validate:"omitempty"`
+	EndDate    string `json:"end_date" validate:"omitempty"`
 }

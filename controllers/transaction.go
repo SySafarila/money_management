@@ -70,6 +70,8 @@ func (t transactionController) All(c fiber.Ctx) error {
 	queries := models.TransactionQueries{
 		IsIncome:   fiber.Query[string](c, "is_income"),
 		CategoryId: fiber.Query[string](c, "category_id"),
+		StartDate:  fiber.Query[string](c, "start_date"),
+		EndDate:    fiber.Query[string](c, "end_date"),
 	}
 	err2 := utils.ValidateStruct(queries)
 	if err2 != nil {
