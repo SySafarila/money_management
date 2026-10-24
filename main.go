@@ -40,6 +40,9 @@ func main() {
 	// transaction
 	transactionModule := modules.NewTransactionModule(categoryModule.Service)
 
+	// whatsapp
+	whatsAppModule := modules.NewWhatsAppModule()
+
 	// user
 	app.Get("/users", userModule.Controller.GetAllUsers)
 	app.Get("/users/:id", userModule.Controller.DetailUser)
@@ -64,6 +67,11 @@ func main() {
 	app.Get("/categories/:id", categoryModule.Controller.Detail)
 	app.Patch("/categories/:id", categoryModule.Controller.UpdateCategory)
 	app.Delete("/categories/:id", categoryModule.Controller.Delete)
+
+	// whatsapp
+	whatsAppRoutes := app.Group("/whatsapp")
+	whatsAppRoutes.Post("/receive-message", whatsAppModule.Controller.ReceiveMessage)
+	whatsAppRoutes.Post("/verify", whatsAppModule.Controller.Verify)
 
 	log.Fatal(app.Listen(":3000"))
 }
