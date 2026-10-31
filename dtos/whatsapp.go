@@ -32,13 +32,25 @@ type WhatsAppReceiveMessagePayload struct {
 	} `json:"entry"`
 }
 
-type WhatsAppSendMessagePayload struct {
+type WhatsAppSendMessageWithUrlPayload struct {
 	MessagingProduct string `json:"messaging_product"`
 	RecipientType    string `json:"recipient_type"`
 	To               string `json:"to"`
 	Type             string `json:"type"`
-	Text             struct {
-		PreviewUrl bool   `json:"preview_url"`
-		Body       string `json:"body"`
-	} `json:"text"`
+	Interactive      struct {
+		Type string `json:"type"`
+		Body struct {
+			Text string `json:"text"`
+		} `json:"body"`
+		Action struct {
+			Name       string `json:"name"`
+			Parameters struct {
+				DisplayText string `json:"display_text"`
+				Url         string `json:"url"`
+			} `json:"parameters"`
+		} `json:"action"`
+		Footer struct {
+			Text string `json:"text"`
+		} `json:"footer"`
+	} `json:"interactive"`
 }

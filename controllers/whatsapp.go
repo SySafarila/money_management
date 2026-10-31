@@ -7,7 +7,6 @@ import (
 	"money_management/utils"
 
 	"github.com/gofiber/fiber/v3"
-	"github.com/spf13/viper"
 )
 
 type WhatsAppController interface {
@@ -23,7 +22,7 @@ func (u whatsAppController) Verify(c fiber.Ctx) error {
 	hubChallenge := c.Query("hub.challenge")
 	token := c.Query("hub.verify_token")
 
-	if token != viper.GetString("whatsapp.verify_token") {
+	if token != "SyahrulSafarila" {
 		return fiber.ErrUnauthorized
 	}
 

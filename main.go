@@ -3,7 +3,6 @@ package main
 import (
 	"log"
 	"money_management/config"
-	"money_management/database"
 	"money_management/middlewares"
 	"money_management/modules"
 	"money_management/utils"
@@ -16,7 +15,7 @@ import (
 func init() {
 	config.InitViper()
 	utils.InitValidator()
-	database.InitDB()
+	//database.InitDB()
 }
 
 func main() {
@@ -71,7 +70,7 @@ func main() {
 	// whatsapp
 	whatsAppRoutes := app.Group("/whatsapp")
 	whatsAppRoutes.Post("/receive-message", whatsAppModule.Controller.ReceiveMessage)
-	whatsAppRoutes.Post("/verify", whatsAppModule.Controller.Verify)
+	whatsAppRoutes.Get("/receive-message", middlewares.WhatsAppMiddleware, whatsAppModule.Controller.Verify)
 
 	log.Fatal(app.Listen(":3000"))
 }
